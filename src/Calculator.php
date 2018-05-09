@@ -24,9 +24,7 @@ class Calculator
 
         $this->transformNumbersToArray();
 
-        $this->checkForNegativeNumbers();
-
-        return $this->makeAddition();
+        return $this->performAddition();
     }
 
     private function getDelimiters() : array
@@ -81,6 +79,14 @@ class Calculator
         return $pattern;
     }
 
+    private function performAddition() : int
+    {
+        $this->checkForNegativeNumbers();
+        $this->ignoreNumbersBiggerThanOneThousand();
+
+        return (int) array_sum($this->numbers);
+    }
+
     private function checkForNegativeNumbers() : bool
     {
         $negativeNumbers = '';
@@ -94,13 +100,6 @@ class Calculator
             return false;
         }
         throw new \InvalidArgumentException("Negative numbers passed:{$negativeNumbers}");
-    }
-
-    private function makeAddition() : int
-    {
-        $this->ignoreNumbersBiggerThanOneThousand();
-
-        return (int) array_sum($this->numbers);
     }
 
     private function ignoreNumbersBiggerThanOneThousand() : void
