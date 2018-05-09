@@ -4,38 +4,75 @@ namespace Kata;
 
 class Calculator
 {
-    private const DEFAULT_ALLOWED_NUMBERS_DELIMITER = [
-        "\n"
-    ];
+    private const DEFAULT_ALLOWED_NUMBER_DELIMITERS = ["\n"];
+
+    /**
+     * @var string|array
+     */
+    private $numbers;
+
+    /**
+     * @var array
+     */
+    private $delimiters;
 
     public function add(string $numbers) : int
     {
-        $customDelimiter = $this->getCustomDelimiterIfPassed($numbers);
+        $this->numbers = $numbers;
 
-        $allowedDelimiters = $customDelimiter ?? self::DEFAULT_ALLOWED_NUMBERS_DELIMITER;
+        $this->delimiters = $this->getDelimiters();
 
-        $commaSeparatedNumbers = $this->getNumbersOnlySeparatedByComma($numbers, $allowedDelimiters);
+        $this->transformNumbersToArray();
 
-        $args = explode(',', $commaSeparatedNumbers);
+        $this->checkForNegativeNumbers();
 
-        if (!$this->checkForNegativeNumbers($args)) {
-            return (int) array_sum($args);
-        }
+        return $this->makeAddition();
     }
 
-    private function getNumbersOnlySeparatedByComma(string $input, array $allowedDelimiters) : string
+    private function getDelimiters() : array
     {
-        $pattern = $this->createPattern($allowedDelimiters);
+        $customDelimiters = $this->getCustomDelimitersIfPassed();
 
-        return preg_replace($pattern, ',', $input);
+        if ($customDelimiters) {
+            $this->removeDelimiterPart();
+            return $customDelimiters;
+        }
+
+        return self::DEFAULT_ALLOWED_NUMBER_DELIMITERS;
     }
 
-    private function createPattern(array $allowedDelimiters) : string
+    private function getCustomDelimitersIfPassed() : ?array
+    {
+        $result = preg_match_all('/\[([^\[\]]+)\]/', $this->numbers, $matches);
+
+        return ($result !== 0) ? $matches[1] : null;
+    }
+
+    private function removeDelimiterPart() : void
+    {
+        $this->numbers = preg_replace('/\/\/\[(.+)\]\n/', '', $this->numbers);
+    }
+
+    private function transformNumbersToArray() : void
+    {
+        $commaSeparatedNumbers = $this->getNumbersOnlySeparatedByComma();
+
+        $this->numbers = explode(',', $commaSeparatedNumbers);
+    }
+
+    private function getNumbersOnlySeparatedByComma() : string
+    {
+        $pattern = $this->createPattern();
+
+        return preg_replace($pattern, ',', $this->numbers);
+    }
+
+    private function createPattern() : string
     {
         $pattern = '/([';
-        foreach ($allowedDelimiters as $index => $delimiter) {
+        foreach ($this->delimiters as $index => $delimiter) {
             $pattern .= $delimiter;
-            if ($index < count($allowedDelimiters) - 1) {
+            if ($index < count($this->delimiters) - 1) {
                 $pattern .= '|';
             }
         }
@@ -44,17 +81,10 @@ class Calculator
         return $pattern;
     }
 
-    private function getCustomDelimiterIfPassed(string $input) : ?array
-    {
-        $result = preg_match('/\/\/(.)\n/', $input, $matches);
-
-        return ($result !== 0) ? [$matches[1]] : null;
-    }
-
-    private function checkForNegativeNumbers(array $numbers) : bool
+    private function checkForNegativeNumbers() : bool
     {
         $negativeNumbers = '';
-        foreach ($numbers as &$number) {
+        foreach ($this->numbers as $number) {
             if ($number < 0) {
                 $negativeNumbers .= " {$number}";
             }
@@ -64,5 +94,21 @@ class Calculator
             return false;
         }
         throw new \InvalidArgumentException("Negative numbers passed:{$negativeNumbers}");
+    }
+
+    private function makeAddition() : int
+    {
+        $this->ignoreNumbersBiggerThanOneThousand();
+
+        return (int) array_sum($this->numbers);
+    }
+
+    private function ignoreNumbersBiggerThanOneThousand() : void
+    {
+        foreach ($this->numbers as $index => $number) {
+            if ($number > 1000) {
+                unset($this->numbers[$index]);
+            }
+        }
     }
 }

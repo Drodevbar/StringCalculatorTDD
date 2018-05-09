@@ -12,9 +12,7 @@ class CalculatorTest extends TestCase
      */
     public function itTakesEmptyStringAndReturnsZero()
     {
-        $calculator = new Calculator();
-
-        $total = $calculator->add("");
+        $total = $this->getTotalForPattern("");
 
         $this->assertEquals(0, $total);
     }
@@ -24,9 +22,7 @@ class CalculatorTest extends TestCase
      */
     public function itTakesOneNumberAndReturnsCorrectTotal()
     {
-        $calculator = new Calculator();
-
-        $total = $calculator->add("5");
+        $total = $this->getTotalForPattern("5");
 
         $this->assertEquals(5, $total);
     }
@@ -36,9 +32,7 @@ class CalculatorTest extends TestCase
      */
     public function itTakesTwoNumbersAndReturnsCorrectTotal()
     {
-        $calculator = new Calculator();
-
-        $total = $calculator->add("1,4");
+        $total = $this->getTotalForPattern("1,4");
 
         $this->assertEquals(5, $total);
     }
@@ -48,9 +42,7 @@ class CalculatorTest extends TestCase
      */
     public function itTakesMoreThanTwoNumbersAndReturnsCorrectTotal()
     {
-        $calculator = new Calculator();
-
-        $total = $calculator->add("1,1,1,2");
+        $total = $this->getTotalForPattern("1,1,1,2");
 
         $this->assertEquals(5, $total);
     }
@@ -60,9 +52,7 @@ class CalculatorTest extends TestCase
      */
     public function itAllowsNewLinesBetweenNumbersInsteadOfCommas()
     {
-        $calculator = new Calculator();
-
-        $total = $calculator->add("1\n2,3");
+        $total = $this->getTotalForPattern("1\n2,3");
 
         $this->assertEquals(6, $total);
     }
@@ -70,11 +60,9 @@ class CalculatorTest extends TestCase
     /**
      * @test
      */
-    public function itSupportsCustomDelimiters()
+    public function itAllowsCustomDelimiters()
     {
-        $calculator = new Calculator();
-
-        $total = $calculator->add("//;\n1;2");
+        $total = $this->getTotalForPattern("//[;]\n1;2");
 
         $this->assertEquals(3, $total);
     }
@@ -85,8 +73,53 @@ class CalculatorTest extends TestCase
      */
     public function itThrowsExceptionWhenNegativeNumberPassed()
     {
+        $this->getTotalForPattern("-1,2,-3");
+    }
+
+    /**
+     * @test
+     */
+    public function itIgnoresNumbersBiggerThanOneThousand()
+    {
+        $total = $this->getTotalForPattern("1001,2");
+
+        $this->assertEquals(2, $total);
+    }
+
+    /**
+     * @test
+     */
+    public function itAllowsDelimitersWithAnyLength()
+    {
+        $total = $this->getTotalForPattern("//[***]\n1***2***3");
+
+        $this->assertEquals(6, $total);
+    }
+
+    /**
+     * @test
+     */
+    public function itAllowsMultipleDelimiters()
+    {
+        $total = $this->getTotalForPattern("//[*][%]\n1*2%3");
+
+        $this->assertEquals(6, $total);
+    }
+
+    /**
+     * @test
+     */
+    public function itAllowsMultipleDelimitersWithAnyLength()
+    {
+        $total = $this->getTotalForPattern("//[***][%]\n1***2%3");
+
+        $this->assertEquals(6, $total);
+    }
+
+    private function getTotalForPattern(string $pattern) : int
+    {
         $calculator = new Calculator();
 
-        $calculator->add("-1,2,-3");
+        return $calculator->add($pattern);
     }
 }
