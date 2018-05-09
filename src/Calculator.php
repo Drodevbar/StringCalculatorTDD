@@ -48,7 +48,7 @@ class Calculator
 
     private function removeDelimiterPart() : void
     {
-        $this->numbers = preg_replace('/\/\/\[(.+)\]\n/', '', $this->numbers);
+        $this->numbers = preg_replace('/\/\/.*\n/', '', $this->numbers);
     }
 
     private function transformNumbersToArray() : void
