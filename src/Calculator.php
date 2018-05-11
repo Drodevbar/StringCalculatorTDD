@@ -87,7 +87,7 @@ class Calculator
         return (int) array_sum($this->numbers);
     }
 
-    private function checkForNegativeNumbers() : bool
+    private function checkForNegativeNumbers() : void
     {
         $negativeNumbers = '';
         foreach ($this->numbers as $number) {
@@ -96,10 +96,9 @@ class Calculator
             }
         }
 
-        if (empty($negativeNumbers)) {
-            return false;
+        if ($negativeNumbers) {
+            throw new \InvalidArgumentException("Negative numbers passed:{$negativeNumbers}");
         }
-        throw new \InvalidArgumentException("Negative numbers passed:{$negativeNumbers}");
     }
 
     private function ignoreNumbersBiggerThanOneThousand() : void
