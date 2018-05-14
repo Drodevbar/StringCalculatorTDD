@@ -1,6 +1,9 @@
-### Źródło: http://osherove.com/tdd-kata-1/
+### Source: http://osherove.com/tdd-kata-1/
 
-Odpalanie testów: `docker-compose up`
+Running tests:
+```
+docker-compose up
+```
 
     String Calculator
     
