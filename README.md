@@ -1,6 +1,6 @@
 ### Source: http://osherove.com/tdd-kata-1/
 
-Running tests:
+Running tests and CodeSniffer in Docker container: 
 ```
 docker-compose up
 ```
